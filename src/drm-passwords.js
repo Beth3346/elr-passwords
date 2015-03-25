@@ -53,8 +53,32 @@
             return $.trim(field.val());
         };
 
-        self.generatePassword = function() {
+        self.generateRandomString = function(length) {
+            // return Math.random().toString(36).slice(2).substring(length);
 
+            var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()+?~.,/{}[]+=_-',
+                str = '';
+
+            for (var i = 0, n = charset.length; i < length; i++) {
+                str += charset.charAt(Math.floor(Math.random() * n));
+            }
+
+            return str;
+        };
+
+        self.generatePassword = function(length) {
+            var createPassword = function(length) {
+                    var pass = self.generateRandomString(length),
+                        strength = self.checkStrength(pass);
+
+                    if ( strength === 'strong' || pass.length !== length ) {
+                        return createPassword(length);
+                    } else {
+                        return pass;
+                    }
+                };
+
+            return createPassword(length);
         };
 
         self.checkBlacklist = function(password, blacklist) {
@@ -180,9 +204,10 @@
         }
 
         var field = $('.' + fieldClass),
-            button = $('button.' + buttonClass);
+            showButton = $('button.' + buttonClass),
+            generateButton = $('button.drm-generate-password');
 
-        button.on('click', function(e) {
+        showButton.on('click', function(e) {
             e.preventDefault();
             self.showPassword(field, $(this), showButtonText, hideButtonText);
         });
@@ -205,6 +230,15 @@
 
             self.createMessage(status, passwordLength, field);
             self.createMeter(status, passwordLength, field);
+        });
+
+        generateButton.on('click', function() {
+            var passHolder = $('.password-holder').empty(),
+                newPassword = self.generatePassword(reqLength);
+
+            $('<p></p>', {
+                text: newPassword
+            }).appendTo(passHolder);
         });
 
         return self;
