@@ -1,0 +1,31 @@
+{
+  "name": "elr-passwords",
+  "version": "1.0.0",
+  "homepage": "https://github.com/elr-utilities/elr-passwords",
+  "authors": [
+    "Elizabeth Rogers <beth@elizabeth-rogers.com>"
+  ],
+  "description": "Javascript Passwords",
+  "main": "dist/elr-passwords.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "passwords",
+    "jquery",
+    "javascript",
+    "ui"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}
