@@ -1,8 +1,17 @@
-(function($) {
-    window.elrPasswords = function(params) {
-        var self = {};
-        var spec = params || {};
-        var bl = [
+import elrUtlities from 'elr-utilities';
+const $ = require('jquery');
+
+let elr = elrUtlities();
+
+const elrPasswords = function({
+    fieldClass = 'elr-password',
+    buttonClass = 'elr-show-password',
+    reqLength = 10,
+    showButtonText = 'Show Password',
+    hideButtonText = 'Hide Password'
+} = {}) {
+    const self = {
+        blacklist: [
             'password',
             'pass',
             '1234',
@@ -29,16 +38,9 @@
             '000000',
             'guest',
             'default'
-        ];
-        var fieldClass = spec.fieldClass || 'elr-password';
-        var buttonClass = spec.buttonClass || 'elr-show-password';
-        var blacklist = spec.blacklist || bl;
-        var reqLength = spec.reqLength || 8;
-        var showButtonText = spec.showButtonText || 'Show Password';
-        var hideButtonText = spec.hideButtonText || 'Hide Password';
-
-        var showPassword = function($field, $button, showButtonText, hideButtonText) {
-            var fieldType = $field.attr('type');
+        ],
+        showPassword($field, $button, showButtonText, hideButtonText) {
+            const fieldType = $field.attr('type');
 
             if ( fieldType === 'password' ) {
                 $field.attr('type', 'text');
@@ -47,27 +49,26 @@
                 $field.attr('type', 'password');
                 $button.text(showButtonText);
             }
-        };
+        },
+        createPassword(length) {
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()+?~.,/{}[]+=_-';
+            let pass = elr.generateRandomString(length, charset);
+            const strength = this.checkStrength(pass);
 
-        var generatePassword = function(length) {
-            var createPassword = function(length) {
-                    var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()+?~.,/{}[]+=_-';
-                    var pass = elr.generateRandomString(length, charset);
-                    var strength = checkStrength(pass);
-
-                    if ( strength !== 'strong' || pass.length !== length ) {
-                        return createPassword(length);
-                    } else {
-                        return pass;
-                    }
-                };
-
-            return createPassword(length);
-        };
-
-        var checkStrength = function(password) {
+            // keep calling create password until the generated password
+            // satisfies the strength requirements
+            if ( strength === 'strong' || pass.length >= length ) {
+                return pass;
+            } else {
+                return this.createPassword(length);
+            }
+        },
+        generatePassword(length) {
+            return this.createPassword(length);
+        },
+        checkStrength(password) {
             // ensure that passwords contain a mixture of uppercase and lowercase letters, numbers, and special characters
-            var stats = {};
+            const stats = {};
 
             stats.containsNum = elr.patterns.numeral.test(password);
             stats.containsAlphaLower = elr.patterns.alphaLower.test(password);
@@ -85,67 +86,63 @@
             } else {
                 return 'medium';
             }
-        };
+        },
+        createMessage(results, passwordLength, $field) {
+            const $passwordMessage = $('.password-message');
+            const messageClass = 'password-message';
 
-        var createMessage = function(results, passwordLength, $field) {
-            var $passwordMessage = $('small.password-message');
-            var messageClass = 'password-message';
-
-            if ( passwordLength === 0 ) {
+            if ( passwordLength === 0 || results.status === 'success' ) {
                 $passwordMessage.remove();
             } else if ( $passwordMessage.length === 0 && results.message !== null ) {
                 $('<small></small>', {
                     text: results.message,
-                    'class': 'password-message-' + results.status + ' ' + messageClass
+                    'class': `password-message-${results.status} ${messageClass}`
                 }).hide().insertAfter($field).show();
             } else {
-                removeStatusClass(messageClass);
+                this.removeStatusClass(messageClass);
                 $passwordMessage.text(results.message);
-                $passwordMessage.addClass('password-message-' + results.status);
+                $passwordMessage.addClass(`password-message-${results.status}`);
             }
-        };
-
-        var createMeter = function(results, passwordLength, $field) {
-            var $passwordMeter = $('p.password-meter');
-            var meterClass = 'password-meter';
+        },
+        createMeter(results, passwordLength, $field) {
+            const $passwordMeter = $('p.password-meter');
+            const meterClass = 'password-meter';
 
             if ( passwordLength === 0 ) {
                 $passwordMeter.remove();
             } else if ( $passwordMeter.length === 0 ) {
                 $('<p></p>', {
                     text: results.strength,
-                    'class': 'password-meter-' + results.status + ' ' + meterClass 
+                    'class': `password-meter-${results.status} ${meterClass}`
                 }).hide().insertAfter($field).show();
             } else {
-                removeStatusClass(meterClass);
+                this.removeStatusClass(meterClass);
                 $passwordMeter.text(results.strength);
-                $passwordMeter.addClass('password-meter-' + results.status);
+                $passwordMeter.addClass(`password-message-${results.status}`);
             }
-        };
+        },
+        removeStatusClass(elementClass) {
+            const $element = $(`.${elementClass}`);
 
-        var removeStatusClass = function(elementClass) {
-            var $element = $('.' + elementClass);
-
-            $element.removeClass(elementClass + '-danger');
-            $element.removeClass(elementClass + '-warning');
-            $element.removeClass(elementClass + '-success');
-        };
-
-        var getStatus = function(results) {
-            var status = {
+            $element.removeClass(`${elementClass}-danger`);
+            $element.removeClass(`${elementClass}-warning`);
+            $element.removeClass(`${elementClass}-success`);
+        },
+        getStatus(results) {
+            const status = {
                 message: null,
                 strength: null,
                 status: null
             };
 
-            if ( results.blacklist !== -1 ) {
+            if (results.blacklist !== -1) {
                 status.strength = 'weak';
                 status.message = 'please do not use a common password';
                 status.status = 'danger';
             } else if ( results.length ) {
                 status.strength = 'weak';
-                status.message = 'not enough characters';
-                status.status = 'danger';        
+                status.message = `password should be at least ${reqLength} characters`;
+                status.status = 'danger';
             } else if ( results.complexity ) {
                 status.strength = results.complexity;
                 status.message = 'use a combination of uppercase and lowercase letters, numbers, and special characters';
@@ -163,50 +160,51 @@
             } else {
                 status.strength = 'strong';
                 status.message = 'great password';
-                status.status = 'success';             
+                status.status = 'success';
             }
 
             return status;
+        }
+    };
+
+    const $field = $(`.${fieldClass}`);
+    const $showButton = $(`.${buttonClass}`);
+    const $generateButton = $('.elr-generate-password');
+
+    $showButton.on('click', function(e) {
+        e.preventDefault();
+        self.showPassword($field, $(this), showButtonText, hideButtonText);
+    });
+
+    $field.on('keyup', elr.throttle(function() {
+        const password = elr.getValue(this);
+        const passwordLength = (password) ? password.length : 0;
+        const results = {
+            blacklist: null,
+            length: null,
+            complexity: null
         };
 
-        var $field = $('.' + fieldClass);
-        var $showButton = $('button.' + buttonClass);
-        var $generateButton = $('button.elr-generate-password');
+        results.blacklist = elr.checkBlacklist(password, self.blacklist);
+        results.length = elr.checkLength(password, reqLength);
+        results.complexity = self.checkStrength(password);
 
-        $showButton.on('click', function(e) {
-            e.preventDefault();
-            showPassword($field, $(this), showButtonText, hideButtonText);
-        });
+        const status = self.getStatus(results);
 
-        $field.on('keyup', elr.throttle(function() {
-            var password = elr.getValue($field);
-            var passwordLength = password.length;
-            var results = {
-                    blacklist: null,
-                    length: null,
-                    complexity: null
-                };
-            var status;
+        self.createMessage(status, passwordLength, $field);
+        // createMeter(status, passwordLength, $field);
+    }, 500));
 
-            results.blacklist = elr.checkBlacklist(password, blacklist);
-            results.length = elr.checkLength(password, reqLength);
-            results.complexity = checkStrength(password);
-            
-            status = getStatus(results);
+    $generateButton.on('click', function() {
+        const $passHolder = $('.password-holder').empty();
+        const newPassword = self.generatePassword(reqLength);
 
-            createMessage(status, passwordLength, $field);
-            createMeter(status, passwordLength, $field);
-        }, 500));
+        $('<p></p>', {
+            text: newPassword
+        }).appendTo($passHolder);
+    });
 
-        $generateButton.on('click', function() {
-            var $passHolder = $('.password-holder').empty();
-            var newPassword = generatePassword(reqLength);
+    return self;
+};
 
-            $('<p></p>', {
-                text: newPassword
-            }).appendTo($passHolder);
-        });
-
-        return self;
-    };
-})(jQuery);
+export default elrPasswords;
