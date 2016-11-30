@@ -1,6 +1,6 @@
 {
   "name": "elr-password",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "password ui components and utilities",
   "main": "dist/elr-passwords.js",
   "repository": {
