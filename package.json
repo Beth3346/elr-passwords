@@ -2,10 +2,10 @@
   "name": "elr-password",
   "version": "1.0.2",
   "description": "password ui components and utilities",
-  "main": "dist/elr-password.js",
+  "main": "dist/elr-passwords.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elr-utilities/elr-password.git"
+    "url": "https://github.com/elr-utilities/elr-passwords.git"
   },
   "scripts": {
     "build": "build"
