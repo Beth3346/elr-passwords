@@ -1,19 +1,16 @@
 {
   "name": "elr-password",
-  "version": "1.0.3",
   "description": "password ui components and utilities",
-  "main": "dist/elr-passwords.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/elr-utilities/elr-passwords.git"
-  },
-  "scripts": {
-    "build": "build"
+  "version": "1.0.3",
+  "author": "Elizabeth Rogers",
+  "bugs": {
+    "url": "https://github.com/Beth3346/elr-passwords",
+    "email": "beth@elizabeth-rogers.com"
   },
   "dependencies": {
     "babel-runtime": "^6.0.0",
-    "jquery": "^3.1.1",
-    "elr-utility-lib": ""
+    "elr-utility-lib": "",
+    "jquery": "^3.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.0.0",
@@ -24,5 +21,18 @@
     "gulp-jshint": "^2.0.1",
     "gulp-sourcemaps": "^2.1.1",
     "jshint": "^2.9.3"
+  },
+  "homepage": "http://www.elizabeth-rogers.com/elr-utilities/js-passwords.html",
+  "keywords": [
+    "javascript, jquery, password, forms, security, ui"
+  ],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "main": "dist/elr-passwords.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elr-utilities/elr-passwords.git"
+  },
+  "scripts": {
+    "build": "build"
   }
 }
