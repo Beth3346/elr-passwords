@@ -42,7 +42,7 @@ const elrPasswords = function({
         showPassword($field, $button, showButtonText, hideButtonText) {
             const fieldType = $field.attr('type');
 
-            if ( fieldType === 'password' ) {
+            if (fieldType === 'password') {
                 $field.attr('type', 'text');
                 $button.text(hideButtonText);
             } else {
@@ -57,11 +57,11 @@ const elrPasswords = function({
 
             // keep calling create password until the generated password
             // satisfies the strength requirements
-            if ( strength === 'strong' || pass.length >= length ) {
+            if (strength === 'strong' || pass.length >= length) {
                 return pass;
-            } else {
-                return this.createPassword(length);
             }
+
+            return this.createPassword(length);
         },
         generatePassword(length) {
             return this.createPassword(length);
@@ -79,9 +79,9 @@ const elrPasswords = function({
             stats.allAlphaUpper = elr.patterns.allAlphaUpper.test(password);
             stats.allSpecialCharacters = elr.patterns.allSpecialCharacters.test(password);
 
-            if ( stats.allNumbers || stats.allAlphaUpper || stats.allAlphaLower || stats.allSpecialCharacters ) {
+            if (stats.allNumbers || stats.allAlphaUpper || stats.allAlphaLower || stats.allSpecialCharacters) {
                 return 'weak';
-            } else if ( stats.containsNum && stats.containsSpecialCharacters && stats.containsAlphaUpper && stats.containsAlphaLower ) {
+            } else if (stats.containsNum && stats.containsSpecialCharacters && stats.containsAlphaUpper && stats.containsAlphaLower) {
                 return 'strong';
             } else {
                 return 'medium';
@@ -91,9 +91,9 @@ const elrPasswords = function({
             const $passwordMessage = $('.password-message');
             const messageClass = 'password-message';
 
-            if ( passwordLength === 0 || results.status === 'success' ) {
+            if (passwordLength === 0 || results.status === 'success') {
                 $passwordMessage.remove();
-            } else if ( $passwordMessage.length === 0 && results.message !== null ) {
+            } else if ($passwordMessage.length === 0 && results.message !== null) {
                 $('<small></small>', {
                     text: results.message,
                     'class': `password-message-${results.status} ${messageClass}`
@@ -108,9 +108,9 @@ const elrPasswords = function({
             const $passwordMeter = $('p.password-meter');
             const meterClass = 'password-meter';
 
-            if ( passwordLength === 0 ) {
+            if (passwordLength === 0) {
                 $passwordMeter.remove();
-            } else if ( $passwordMeter.length === 0 ) {
+            } else if ($passwordMeter.length === 0) {
                 $('<p></p>', {
                     text: results.strength,
                     'class': `password-meter-${results.status} ${meterClass}`
@@ -139,19 +139,19 @@ const elrPasswords = function({
                 status.strength = 'weak';
                 status.message = 'please do not use a common password';
                 status.status = 'danger';
-            } else if ( results.length ) {
+            } else if (results.length) {
                 status.strength = 'weak';
                 status.message = `password should be at least ${reqLength} characters`;
                 status.status = 'danger';
-            } else if ( results.complexity ) {
+            } else if (results.complexity) {
                 status.strength = results.complexity;
                 status.message = 'use a combination of uppercase and lowercase letters, numbers, and special characters';
 
-                if ( results.complexity === 'weak' ) {
+                if (results.complexity === 'weak') {
                     status.status = 'danger';
-                } else if ( results.complexity === 'medium' ) {
+                } else if (results.complexity === 'medium') {
                     status.status = 'warning';
-                } else if ( results.complexity === 'strong' ) {
+                } else if (results.complexity === 'strong') {
                     status.status = 'success';
                 } else {
                     console.log('complexity: unknown status');
