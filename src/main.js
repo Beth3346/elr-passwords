@@ -66,26 +66,29 @@ const elrPasswords = function({
         generatePassword(length) {
             return this.createPassword(length);
         },
+        getPasswordStats(password) {
+            return {
+                'containsNum': elr.patterns.numeral.test(password),
+                'containsAlphaLower': elr.patterns.alphaLower.test(password),
+                'containsAlphaUpper': elr.patterns.alphaUpper.test(password),
+                'containsSpecialCharacters': elr.patterns.specialCharacters.test(password),
+                'allNumbers': elr.patterns.allNumbers.test(password),
+                'allAlphaLower': elr.patterns.allAlphaLower.test(password),
+                'allAlphaUpper': elr.patterns.allAlphaUpper.test(password),
+                'allSpecialCharacters': elr.patterns.allSpecialCharacters.test(password)
+            };
+        },
         checkStrength(password) {
             // ensure that passwords contain a mixture of uppercase and lowercase letters, numbers, and special characters
-            const stats = {};
-
-            stats.containsNum = elr.patterns.numeral.test(password);
-            stats.containsAlphaLower = elr.patterns.alphaLower.test(password);
-            stats.containsAlphaUpper = elr.patterns.alphaUpper.test(password);
-            stats.containsSpecialCharacters = elr.patterns.specialCharacters.test(password);
-            stats.allNumbers = elr.patterns.allNumbers.test(password);
-            stats.allAlphaLower = elr.patterns.allAlphaLower.test(password);
-            stats.allAlphaUpper = elr.patterns.allAlphaUpper.test(password);
-            stats.allSpecialCharacters = elr.patterns.allSpecialCharacters.test(password);
+            const stats = this.getPasswordStats(password);
 
             if (stats.allNumbers || stats.allAlphaUpper || stats.allAlphaLower || stats.allSpecialCharacters) {
                 return 'weak';
             } else if (stats.containsNum && stats.containsSpecialCharacters && stats.containsAlphaUpper && stats.containsAlphaLower) {
                 return 'strong';
-            } else {
-                return 'medium';
             }
+
+            return 'medium';
         },
         createMessage(results, passwordLength, $field) {
             const $passwordMessage = $('.password-message');
@@ -104,23 +107,23 @@ const elrPasswords = function({
                 $passwordMessage.addClass(`password-message-${results.status}`);
             }
         },
-        createMeter(results, passwordLength, $field) {
-            const $passwordMeter = $('p.password-meter');
-            const meterClass = 'password-meter';
+        // createMeter(results, passwordLength, $field) {
+        //     const $passwordMeter = $('p.password-meter');
+        //     const meterClass = 'password-meter';
 
-            if (passwordLength === 0) {
-                $passwordMeter.remove();
-            } else if ($passwordMeter.length === 0) {
-                $('<p></p>', {
-                    text: results.strength,
-                    'class': `password-meter-${results.status} ${meterClass}`
-                }).hide().insertAfter($field).show();
-            } else {
-                this.removeStatusClass(meterClass);
-                $passwordMeter.text(results.strength);
-                $passwordMeter.addClass(`password-message-${results.status}`);
-            }
-        },
+        //     if (passwordLength === 0) {
+        //         $passwordMeter.remove();
+        //     } else if ($passwordMeter.length === 0) {
+        //         $('<p></p>', {
+        //             text: results.strength,
+        //             'class': `password-meter-${results.status} ${meterClass}`
+        //         }).hide().insertAfter($field).show();
+        //     } else {
+        //         this.removeStatusClass(meterClass);
+        //         $passwordMeter.text(results.strength);
+        //         $passwordMeter.addClass(`password-message-${results.status}`);
+        //     }
+        // },
         removeStatusClass(elementClass) {
             const $element = $(`.${elementClass}`);
 
@@ -128,42 +131,63 @@ const elrPasswords = function({
             $element.removeClass(`${elementClass}-warning`);
             $element.removeClass(`${elementClass}-success`);
         },
-        getStatus(results) {
-            const status = {
-                message: null,
-                strength: null,
-                status: null
+        setStatusBlacklist() {
+            return {
+                'strength': 'weak',
+                'message': 'please do not use a common password',
+                'status': 'danger'
             };
+        },
+        setStatusLength(reqLength) {
+            return {
+                'strength': 'weak',
+                'message': `password should be at least ${reqLength} characters`,
+                'status': 'danger'
+            };
+        },
+        setStatusComplexity(results) {
+            let status;
 
-            if (results.blacklist !== -1) {
-                status.strength = 'weak';
-                status.message = 'please do not use a common password';
-                status.status = 'danger';
-            } else if (results.length) {
-                status.strength = 'weak';
-                status.message = `password should be at least ${reqLength} characters`;
-                status.status = 'danger';
-            } else if (results.complexity) {
-                status.strength = results.complexity;
-                status.message = 'use a combination of uppercase and lowercase letters, numbers, and special characters';
-
-                if (results.complexity === 'weak') {
-                    status.status = 'danger';
-                } else if (results.complexity === 'medium') {
-                    status.status = 'warning';
-                } else if (results.complexity === 'strong') {
-                    status.status = 'success';
-                } else {
-                    console.log('complexity: unknown status');
-                }
-
+            if (results.complexity === 'weak') {
+                status = 'danger';
+            } else if (results.complexity === 'medium') {
+                status = 'warning';
+            } else if (results.complexity === 'strong') {
+                status = 'success';
             } else {
-                status.strength = 'strong';
-                status.message = 'great password';
-                status.status = 'success';
+                console.log('complexity: unknown status');
             }
 
-            return status;
+            return {
+                'strength' : results.complexity,
+                'message' : 'use a combination of uppercase and lowercase letters, numbers, and special characters',
+                'status': status
+            };
+        },
+        setStatusSuccess() {
+            return {
+                'strength': 'strong',
+                'message': 'great password',
+                'status': 'success'
+            };
+        },
+        clearStatus() {
+            return {
+                'message': null,
+                'strength': null,
+                'status': null
+            };
+        },
+        getStatus(results) {
+            if (results.blacklist !== -1) {
+                return this.setStatusBlacklist;
+            } else if (results.length) {
+                return this.setStatusLength(reqLength);
+            } else if (results.complexity) {
+                return this.setStatusComplexity(results);
+            }
+
+            return this.setStatusSuccess();
         }
     };
 
