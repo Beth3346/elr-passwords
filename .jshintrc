@@ -25,11 +25,11 @@
     "maxcomplexity": 14,
     "maxlen": 200,
 
-    "asi": false,
+    "asi": true,
     "boss": false,
     "debug": false,
     "eqnull": true,
-    "esnext": true,
+    "esversion": 6,
     "evil": false,
     "expr": false,
     "funcscope": false,

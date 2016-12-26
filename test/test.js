@@ -1,10 +1,12 @@
 import elrUI from 'elr-ui'
 import elrUtilities from 'elr-utility-lib'
 import passwordUtilties from '../src/password-utilities.js'
+import passwordGenerator from '../src/password-generator.js'
 
 const elr = elrUtilities()
 const ui = elrUI()
 const utils = passwordUtilties()
+const gen = passwordGenerator()
 const expect = require('chai').expect
 const chai = require('chai')
 const assertArrays = require('chai-arrays')
@@ -98,6 +100,31 @@ describe('passwordUtilties', function() {
         })
         it('should be false if the string contains something other than special characters', function() {
             expect(utils.allSpecialCharacters('eh$#irrgdf')).to.be.false
+        })
+    })
+})
+
+describe('passwordGenerator', function() {
+    describe('#createPassword', function() {
+        it('should create a password string', function() {
+            expect(gen.createPassword(10)).to.be.a('string')
+        })
+        it('should be at least 10 characters', function() {
+            expect(gen.createPassword(10)).to.have.lengthOf(10)
+        })
+        it('should be a strong password', function() {
+            expect(utils.checkStrength(gen.createPassword(10))).to.equal('strong')
+        })
+    })
+    describe('#generatePassword', function() {
+        it('should generate a password string', function() {
+            expect(gen.generatePassword(10)).to.be.a('string')
+        })
+        it('should be at least 10 characters', function() {
+            expect(gen.generatePassword(10)).to.have.lengthOf(10)
+        })
+        it('should be a strong password', function() {
+            expect(utils.checkStrength(gen.generatePassword(10))).to.equal('strong')
         })
     })
 })

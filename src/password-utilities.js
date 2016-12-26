@@ -1,17 +1,10 @@
-import elrUtlities from 'elr-utility-lib';
-import elrUI from 'elr-ui';
-const $ = require('jquery');
+import elrUtlities from 'elr-utility-lib'
+import elrUI from 'elr-ui'
 
-let elr = elrUtlities();
-let ui = elrUI();
+let elr = elrUtlities()
+let ui = elrUI()
 
-const passwordUtilities = function({
-    fieldClass = 'elr-password',
-    buttonClass = 'elr-show-password',
-    reqLength = 10,
-    showButtonText = 'Show Password',
-    hideButtonText = 'Hide Password'
-} = {}) {
+const passwordUtilities = function() {
     const self = {
         blacklist: [
             'password',
@@ -65,7 +58,7 @@ const passwordUtilities = function({
         allSpecialCharacters(password) {
             return elr.patterns.allSpecialCharacters.test(password)
         },
-        getPasswordStats(password) {
+        getPasswordStrength(password) {
             return {
                 'containsNum': this.containsNum(password),
                 'containsAlphaLower': this.containsAlphaLower(password),
@@ -79,7 +72,7 @@ const passwordUtilities = function({
         },
         checkStrength(password) {
             // ensure that passwords contain a mixture of uppercase and lowercase letters, numbers, and special characters
-            const stats = this.getPasswordStats(password);
+            const stats = this.getPasswordStrength(password)
 
             if (stats.allNum || stats.allAlphaUpper || stats.allAlphaLower || stats.allSpecialCharacters) {
                 return 'weak'
@@ -88,10 +81,24 @@ const passwordUtilities = function({
             }
 
             return 'medium'
+        },
+        checkBlacklist(password) {
+            if (elr.checkBlacklist(password, this.blacklist) !== -1) {
+                return 'weak'
+            }
+
+            return 'strong'
+        },
+        checkLength(password, length) {
+            if (elr.checkLength(password, length)) {
+                return 'weak'
+            }
+
+            return 'strong'
         }
-    };
+    }
 
     return self
-};
+}
 
 export default passwordUtilities

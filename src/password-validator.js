@@ -1,103 +1,84 @@
-import elrUtlities from 'elr-utility-lib';
-import elrUI from 'elr-ui';
-const $ = require('jquery');
+import elrUtlities from 'elr-utility-lib'
+import elrUI from 'elr-ui'
+import passwordUtilties from '../src/password-utilities.js'
+const $ = require('jquery')
 
-let elr = elrUtlities();
-let ui = elrUI();
+let elr = elrUtlities()
+let ui = elrUI()
+const utils = passwordUtilties()
 
-const passwordValidator = function({
-    fieldClass = 'elr-password',
-    buttonClass = 'elr-show-password',
-    reqLength = 10,
-    showButtonText = 'Show Password',
-    hideButtonText = 'Hide Password'
-} = {}) {
+const passwordValidator = function() {
     const self = {
-        createMessage(results, passwordLength, $field) {
-            const $passwordMessage = $('.password-message');
-            const messageClass = 'password-message';
-
-            if (passwordLength === 0 || results.status === 'success') {
-                $passwordMessage.remove();
-            } else if ($passwordMessage.length === 0 && results.message !== null) {
-                $('<small></small>', {
-                    text: results.message,
-                    'class': `password-message-${results.status} ${messageClass}`
-                }).hide().insertAfter($field).show();
-            } else {
-                this.removeStatusClass(messageClass);
-                $passwordMessage.text(results.message);
-                $passwordMessage.addClass(`password-message-${results.status}`);
+        validate(password, length) {
+            return {
+                'blacklist': utils.checkBlacklist(password),
+                'length': utils.checkLength(password),
+                'strength': utils.checkStrength(password, length)
             }
         },
-        removeStatusClass(elementClass) {
-            const $element = $(`.${elementClass}`);
+        setStatus(results) {
+            const status = {
+                'blacklist': null,
+                'length': null,
+                'strength': null
+            }
 
-            $element.removeClass(`${elementClass}-danger`);
-            $element.removeClass(`${elementClass}-warning`);
-            $element.removeClass(`${elementClass}-success`);
+            if (results.blacklist) {
+                status.blacklist: this.setStatusBlacklist()
+            }
+
+            if (results.length) {
+                status.length: this.setStatusLength(length)
+            }
+
+            if (results.strength) {
+                status.strength: this.setStatusStrength(results)
+            }
         },
         setStatusBlacklist() {
             return {
                 'strength': 'weak',
                 'message': 'please do not use a common password',
                 'status': 'danger'
-            };
+            }
         },
-        setStatusLength(reqLength) {
+        setStatusLength(length) {
             return {
                 'strength': 'weak',
-                'message': `password should be at least ${reqLength} characters`,
+                'message': `password should be at least ${length} characters`,
                 'status': 'danger'
-            };
+            }
         },
-        setStatusComplexity(results) {
-            let status;
+        setStatusStrength(results) {
+            let status
 
-            if (results.complexity === 'weak') {
-                status = 'danger';
-            } else if (results.complexity === 'medium') {
-                status = 'warning';
-            } else if (results.complexity === 'strong') {
-                status = 'success';
+            if (results.strength === 'weak') {
+                status = 'danger'
+            } else if (results.strength === 'medium') {
+                status = 'warning'
+            } else if (results.strength === 'strong') {
+                status = 'success'
             } else {
-                console.log('complexity: unknown status');
+                console.log('strength: unknown status')
             }
 
             return {
-                'strength' : results.complexity,
+                'strength' : results.strength,
                 'message' : 'use a combination of uppercase and lowercase letters, numbers, and special characters',
                 'status': status
-            };
-        },
-        setStatusSuccess() {
-            return {
-                'strength': 'strong',
-                'message': 'great password',
-                'status': 'success'
-            };
-        },
-        clearStatus() {
-            return {
-                'message': null,
-                'strength': null,
-                'status': null
-            };
-        },
-        getStatus(results) {
-            if (results.blacklist !== -1) {
-                return this.setStatusBlacklist;
-            } else if (results.length) {
-                return this.setStatusLength(reqLength);
-            } else if (results.complexity) {
-                return this.setStatusComplexity(results);
             }
+        },
+        // createMessage(results) {
+        //     return results.message
+        // },
+        // createStatusClass(results) {
+        //     const messageClass = 'password-message'
 
-            return this.setStatusSuccess();
-        }
-    };
+        //     return `password-message-${results.status} ${messageClass}`
+        // }
+    }
 
-    return self;
-};
+    return self
+}
 
-export default passwordValidator;
+export default passwordValidator
