@@ -12,8 +12,8 @@ const passwordValidator = function() {
         validate(password, length) {
             return {
                 'blacklist': utils.checkBlacklist(password),
-                'length': utils.checkLength(password),
-                'strength': utils.checkStrength(password, length)
+                'length': utils.checkLength(password, length),
+                'strength': utils.checkStrength(password)
             }
         },
         setStatus(results) {
@@ -24,58 +24,70 @@ const passwordValidator = function() {
             }
 
             if (results.blacklist) {
-                status.blacklist: this.setStatusBlacklist()
+                status.blacklist = this.setStatusBlacklist()
             }
 
             if (results.length) {
-                status.length: this.setStatusLength(length)
+                status.length = this.setStatusLength(length)
             }
 
             if (results.strength) {
-                status.strength: this.setStatusStrength(results)
+                status.strength = this.setStatusStrength(results)
+            }
+
+            return status
+        },
+        setStatusBlacklist(results) {
+            if (results.blacklist === 'weak') {
+                return {
+                    'strength': 'weak',
+                    'message': 'please do not use a common password',
+                    'status': 'danger'
+                }
+            }
+
+            return {
+                'strength': 'strong',
+                'message': 'your password is not in the list of common passwords',
+                'status': 'success'
             }
         },
-        setStatusBlacklist() {
-            return {
-                'strength': 'weak',
-                'message': 'please do not use a common password',
-                'status': 'danger'
+        setStatusLength(results, length) {
+            if (results.length === 'weak') {
+                return {
+                    'strength': 'weak',
+                    'message': `your password should be at least ${length} characters`,
+                    'status': 'danger'
+                }
             }
-        },
-        setStatusLength(length) {
+
             return {
-                'strength': 'weak',
-                'message': `password should be at least ${length} characters`,
-                'status': 'danger'
+                'strength': 'strong',
+                'message': `your password has at least ${length} characters`,
+                'status': 'success'
             }
         },
         setStatusStrength(results) {
             let status
+            let message
 
             if (results.strength === 'weak') {
                 status = 'danger'
+                message = 'use a combination of uppercase and lowercase letters, numbers, and special characters'
             } else if (results.strength === 'medium') {
                 status = 'warning'
+                message = 'use a combination of uppercase and lowercase letters, numbers, and special characters'
             } else if (results.strength === 'strong') {
                 status = 'success'
-            } else {
-                console.log('strength: unknown status')
+                message = 'strong password'
             }
 
             return {
                 'strength' : results.strength,
-                'message' : 'use a combination of uppercase and lowercase letters, numbers, and special characters',
+                'message' : message,
                 'status': status
             }
-        },
-        // createMessage(results) {
-        //     return results.message
-        // },
-        // createStatusClass(results) {
-        //     const messageClass = 'password-message'
-
-        //     return `password-message-${results.status} ${messageClass}`
-        // }
+        }
     }
 
     return self

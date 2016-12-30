@@ -70,7 +70,6 @@ const elrPasswords = function({
 
     $field.on('keyup', elr.throttle(function() {
         const password = $(this).val();
-        // const passwordLength = (password) ? password.length : 0
         const results = validator.getResults(password, reqLength)
         const status = validator.getStatus(results)
 

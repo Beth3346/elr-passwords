@@ -2,11 +2,13 @@ import elrUI from 'elr-ui'
 import elrUtilities from 'elr-utility-lib'
 import passwordUtilties from '../src/password-utilities.js'
 import passwordGenerator from '../src/password-generator.js'
+import passwordValidator from '../src/password-validator.js'
 
 const elr = elrUtilities()
 const ui = elrUI()
 const utils = passwordUtilties()
 const gen = passwordGenerator()
+const valid = passwordValidator()
 const expect = require('chai').expect
 const chai = require('chai')
 const assertArrays = require('chai-arrays')
@@ -38,6 +40,22 @@ describe('passwordUtilties', function() {
             expect(utils.checkStrength('&$#*%()@')).to.equal('weak')
         })
     })
+    describe('#checkBlacklist', function() {
+        it('should return weak if the password is in the blacklist', function() {
+            expect(utils.checkBlacklist('letmein')).to.equal('weak')
+        })
+        it('should return strong if the password in not in the blacklist', function() {
+            expect(utils.checkBlacklist('Str0n$P@$$Wd')).to.equal('strong')
+        })
+    })
+    describe('#checkLength', function() {
+        it('should return weak if the password is not long enough', function() {
+            expect(utils.checkLength('letmein', 10)).to.equal('weak')
+        })
+        it('should return strong if the password is long enought', function() {
+            expect(utils.checkLength('longpassword', 10)).to.equal('strong')
+        })
+    });
     describe('#containsNum', function() {
         it('should be true if the string contains a numeric character', function() {
             expect(utils.containsNum('ehir93')).to.be.true
@@ -128,3 +146,73 @@ describe('passwordGenerator', function() {
         })
     })
 })
+
+describe('passwordValidator', function() {
+    describe('#validate', function() {
+        it('should validate the password', function() {
+            const results = {
+                'blacklist': 'weak',
+                'length': 'weak',
+                'strength': 'weak'
+            }
+
+            expect(valid.validate('letmein', 10)).to.shallowDeepEqual(results)
+        })
+    })
+    describe('#setStatusBlacklist', function() {
+        it('should set the password blacklist status', function() {
+            const blacklistTrue = {
+                'strength': 'weak',
+                'message': 'please do not use a common password',
+                'status': 'danger'
+            }
+            const blacklistFalse = {
+                'strength': 'strong',
+                'message': 'your password is not in the list of common passwords',
+                'status': 'success'
+            }
+            expect(valid.setStatusBlacklist({'blacklist': 'weak'})).to.shallowDeepEqual(blacklistTrue)
+            expect(valid.setStatusBlacklist({'blacklist': 'strong'})).to.shallowDeepEqual(blacklistFalse)
+        })
+    })
+    describe('#setStatusLength', function() {
+        it('should set the password length status', function() {
+            const length = 10
+            const lengthTrue = {
+                'strength': 'weak',
+                'message': `your password should be at least ${length} characters`,
+                'status': 'danger'
+            }
+            const lengthFalse = {
+                'strength': 'strong',
+                'message': `your password has at least ${length} characters`,
+                'status': 'success'
+            }
+
+            expect(valid.setStatusLength({'length': 'weak'}, length)).to.shallowDeepEqual(lengthTrue)
+            expect(valid.setStatusLength({'length': 'strong'}, length)).to.shallowDeepEqual(lengthFalse)
+        })
+    })
+    describe('#setStatusStrength', function() {
+        it('should set the password strength status', function() {
+            const strengthWeak = {
+                'strength': 'weak',
+                'message': 'use a combination of uppercase and lowercase letters, numbers, and special characters',
+                'status': 'danger'
+            }
+            const strengthMedium = {
+                'strength': 'medium',
+                'message': 'use a combination of uppercase and lowercase letters, numbers, and special characters',
+                'status': 'warning'
+            }
+            const strengthStrong = {
+                'strength': 'strong',
+                'message': 'strong password',
+                'status': 'success'
+            }
+            expect(valid.setStatusStrength({'strength': 'weak'})).to.shallowDeepEqual(strengthWeak)
+            expect(valid.setStatusStrength({'strength': 'medium'})).to.shallowDeepEqual(strengthMedium)
+            expect(valid.setStatusStrength({'strength': 'strong'})).to.shallowDeepEqual(strengthStrong)
+        })
+    })
+});
