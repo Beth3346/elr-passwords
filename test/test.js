@@ -1,11 +1,11 @@
-import elrUI from 'elr-ui'
+// import elrUI from 'elr-ui'
 import elrUtilities from 'elr-utility-lib'
 import passwordUtilties from '../src/password-utilities.js'
 import passwordGenerator from '../src/password-generator.js'
 import passwordValidator from '../src/password-validator.js'
 
 const elr = elrUtilities()
-const ui = elrUI()
+// const ui = elrUI()
 const utils = passwordUtilties()
 const gen = passwordGenerator()
 const valid = passwordValidator()

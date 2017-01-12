@@ -1,10 +1,8 @@
 import elrUtlities from 'elr-utility-lib'
-// import elrUI from 'elr-ui'
 import passwordUtilties from '../src/password-utilities.js'
 const $ = require('jquery')
 
 let elr = elrUtlities()
-// let ui = elrUI()
 const utils = passwordUtilties()
 
 const passwordValidator = function() {
